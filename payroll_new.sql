@@ -88,3 +88,121 @@ Select * From INFORMATION_SCHEMA.COLUMNS Where TABLE_NAME = 'emp_payroll'
 
 /* show databases */
 exec sp_databases;
+
+
+/* UC11  */
+/*  Implement ER Diagram */
+/* Create Company table */
+create table Company(
+C_ID int not null,
+C_Name varchar(50) not null
+);
+
+/* insert data */
+insert into Company values
+(103,'Capgemini');
+
+/* Add a primary key to an existing table */
+alter table Company
+add constraint company_id primary key(C_ID);
+
+select * from Company;
+
+/* Create Employee table */
+Create table Employee(
+E_ID int not null primary key,
+C_ID int not null,
+E_Name varchar(50) not null,
+E_PhoneNumber varchar(50) not null,
+E_Address varchar(50) not null,
+E_Gender char(1) not null,
+E_StartDate date not null,
+foreign key(C_ID) references Company(C_ID) 
+);
+
+
+/* insert data */
+insert into Employee values
+(1020,103,'Terisa','123456789','Mumbai','F','2018-06-26'),
+(1021,103,'Mark','987654312','Indore','M','2019-08-26');
+
+select * from Employee;
+
+
+/* Create Department table */
+create table Department(
+D_ID int not null primary key,
+D_Name varchar(50) not null,
+);
+
+
+/* insert data */
+insert into Department values
+(10,'HR'),
+(20,'Marketing'),
+(30,'Development');
+
+select * from Department;
+
+
+/*Create Emp_Dept table */
+Create table Emp_Dept(
+Emp_ID int not null,
+Dept_ID int not null,
+foreign key(Emp_ID) references Employee(E_ID),
+foreign key(Dept_ID) references Department(D_ID)
+);
+
+/* insert data */
+insert into Emp_Dept values
+(1020, 10),
+(1020,20),
+(1021,30);
+
+select * from Emp_Dept;
+
+/*Create Payroll table */
+Create table Payroll(
+E_ID int not null,
+BasicPay float not null,
+Deductions float not null,
+TaxablePay float not null,
+Tax float not null,
+NetPay float not null,
+foreign key(E_ID) references Employee(E_ID)
+);
+
+
+/* insert data */
+insert into Payroll values
+(1020,30000,5000, 2000, 1000, 20000),
+(1021,40000,6000, 2000, 1200, 31500);
+
+select * from Payroll;
+
+
+/* UC12  */
+/* Retriving Data from Newly created ER tables  */
+
+
+
+/* Sample try */
+select * from Company inner join Employee on Company.C_ID=Employee.C_ID;
+
+
+
+/* Salary of particular Emp */
+select E.E_Name as Name, P.NetPay as Salary from Employee E, Payroll P where E.E_ID=P.E_ID and E.E_Name='Terisa';
+
+/* Salary of Emp joined on a particular date */
+select E.E_Name as Name, P.NetPay as Salary from Employee E, Payroll P where E.E_ID=P.E_ID and (E.E_StartDate between cast('2018-10-16' as date) and GETDATE());
+
+
+/* Calulating Total Emp in a company */
+select count(E.E_ID) as TotalEmployees from Company C join Employee E on C.C_ID=E.C_ID; 
+
+
+
+/* Sample try */
+select * from Employee, Department, Emp_Dept where Employee.E_ID=Emp_Dept.Emp_ID and Department.D_ID=Emp_Dept.Dept_ID;
+
